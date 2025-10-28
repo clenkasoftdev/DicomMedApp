@@ -1,0 +1,132 @@
+<div class="patient-detail-container">
+  <div class="header">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Patient Details</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Loading patient details...</p>
+  </div>
+
+  <mat-card *ngIf="error" class="error-card">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+  </mat-card>
+
+  <div *ngIf="!loading && !error && patient" class="patient-content">
+    <!-- Patient Information Card -->
+    <mat-card class="patient-info-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>person</mat-icon>
+        <mat-card-title>{{ patient.patientName }}</mat-card-title>
+        <mat-card-subtitle>ID: {{ patient.patientId }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Birth Date:</strong>
+            <span>{{ formatDate(patient.birthDate) }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Gender:</strong>
+            <span>{{ patient.gender || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Total Studies:</strong>
+            <span>{{ patient.studies.length }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Studies Section -->
+    <div class="studies-section">
+      <h2>Studies ({{ patient.studies.length }})</h2>
+      
+      <mat-accordion>
+        <!-- Study Panel -->
+        <mat-expansion-panel *ngFor="let study of patient.studies" 
+                            (opened)="toggleStudy(study.id)"
+                            [expanded]="expandedStudyId === study.id">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>folder</mat-icon>
+              <span>{{ study.studyDescription || 'Untitled Study' }}</span>
+            </mat-panel-title>
+            <mat-panel-description>
+              <span class="date">{{ formatDate(study.studyDate) }}</span>
+              <mat-chip-set>
+                <mat-chip color="accent" selected>{{ study.seriesCount }} series</mat-chip>
+              </mat-chip-set>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <div class="study-details">
+            <p><strong>Accession Number:</strong> {{ study.accessionNumber || 'N/A' }}</p>
+            <p><strong>Study UID:</strong> <code>{{ study.studyInstanceUid }}</code></p>
+
+            <!-- Series for this Study -->
+            <div *ngIf="seriesMap.get(study.id)" class="series-list">
+              <h3>Series</h3>
+              <mat-accordion>
+                <mat-expansion-panel *ngFor="let series of seriesMap.get(study.id)" 
+                                    (opened)="toggleSeries(series.id)"
+                                    [expanded]="expandedSeriesId === series.id">
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      <mat-icon>collections</mat-icon>
+                      <span>Series {{ series.seriesNumber }}: {{ series.seriesDescription || 'Untitled' }}</span>
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      <span class="modality-badge">{{ series.modality || 'N/A' }}</span>
+                      <span>{{ series.instanceCount }} images</span>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+
+                  <div class="series-details">
+                    <p><strong>Series UID:</strong> <code>{{ series.seriesInstanceUid }}</code></p>
+
+                    <!-- Instances for this Series -->
+                    <div *ngIf="instancesMap.get(series.id)" class="instances-list">
+                      <h4>Images ({{ instancesMap.get(series.id)!.length }})</h4>
+                      <mat-list>
+                        <mat-list-item *ngFor="let instance of instancesMap.get(series.id)">
+                          <mat-icon matListIcon>image</mat-icon>
+                          <div matLine>Instance {{ instance.instanceNumber }}</div>
+                          <div matLine class="secondary-text">
+                            {{ instance.rows }}x{{ instance.columns }} - {{ formatFileSize(instance.fileSize) }}
+                          </div>
+                         <!--  <button mat-icon-button (click)="downloadInstance(instance.id)" matTooltip="Download">
+                            <mat-icon>download</mat-icon>
+                          </button> -->
+                          <button mat-icon-button (click)="viewInstance(instance.id)" matTooltip="View Image">
+                            <mat-icon color="primary">visibility</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="downloadInstance(instance.id)" matTooltip="Download">
+                            <mat-icon>download</mat-icon>
+                          </button>
+                        </mat-list-item>
+                      </mat-list>
+                    </div>
+                  </div>
+                </mat-expansion-panel>
+              </mat-accordion>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+  <!-- DICOM Viewer Modal -->
+    <div *ngIf="showViewer && viewingInstanceId" class="viewer-overlay" (click)="closeViewer()">
+    <div class="viewer-modal" (click)="$event.stopPropagation()">
+        <button mat-icon-button class="close-button" (click)="closeViewer()">
+        <mat-icon>close</mat-icon>
+        </button>
+        <app-dicom-viewer [instanceId]="viewingInstanceId"></app-dicom-viewer>
+    </div>
+    </div>
+</div>

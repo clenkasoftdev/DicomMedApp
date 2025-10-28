@@ -1,0 +1,27 @@
+<mat-toolbar color="primary" class="toolbar">
+  <button mat-icon-button routerLink="/">
+    <mat-icon>local_hospital</mat-icon>
+  </button>
+  <span class="toolbar-title" routerLink="/">{{ title }}</span>
+  <span class="spacer"></span>
+  <button mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+    <mat-icon>home</mat-icon>
+    Home
+  </button>
+  <button mat-button routerLink="/patients" routerLinkActive="active">
+    <mat-icon>people</mat-icon>
+    Patients
+  </button>
+  <button mat-button routerLink="/upload" routerLinkActive="active">
+    <mat-icon>cloud_upload</mat-icon>
+    Upload
+  </button>
+</mat-toolbar>
+
+<div class="content">
+  <router-outlet></router-outlet>
+</div>
+
+<footer class="footer">
+  <p>DICOM Medical Application &copy; 2025 | Built with Angular 15 + .NET 8</p>
+</footer>

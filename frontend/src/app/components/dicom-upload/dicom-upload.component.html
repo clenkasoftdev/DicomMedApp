@@ -1,0 +1,108 @@
+<div class="upload-container">
+  <div class="header">
+    <button mat-icon-button routerLink="/patients">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Upload DICOM Files</h1>
+  </div>
+
+  <!-- File Drop Zone -->
+  <mat-card class="drop-zone" 
+            [class.drag-over]="dragOver"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)">
+    <mat-icon class="upload-icon">cloud_upload</mat-icon>
+    <h2>Drag & Drop DICOM Files Here</h2>
+    <p>or</p>
+    <input type="file" 
+           #fileInput 
+           multiple 
+           accept=".dcm" 
+           (change)="onFileSelected($event)"
+           style="display: none">
+    <button mat-raised-button color="primary" (click)="fileInput.click()">
+      Browse Files
+    </button>
+    <p class="hint">Only .dcm files are accepted</p>
+  </mat-card>
+
+  <!-- Selected Files List -->
+  <mat-card *ngIf="selectedFiles.length > 0 && !uploading && uploadResults.length === 0" class="files-card">
+    <div class="card-header">
+      <h3>Selected Files ({{ selectedFiles.length }})</h3>
+      <button mat-button color="warn" (click)="clearAll()">
+        <mat-icon>clear</mat-icon>
+        Clear All
+      </button>
+    </div>
+    
+    <mat-list>
+      <mat-list-item *ngFor="let file of selectedFiles; let i = index">
+        <mat-icon matListIcon>insert_drive_file</mat-icon>
+        <div matLine>{{ file.name }}</div>
+        <div matLine class="file-size">{{ formatFileSize(file.size) }}</div>
+        <button mat-icon-button (click)="removeFile(i)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-list-item>
+    </mat-list>
+
+    <div class="actions">
+      <button mat-raised-button 
+              color="primary" 
+              (click)="uploadFiles()"
+              [disabled]="uploading">
+        <mat-icon>cloud_upload</mat-icon>
+        Upload {{ selectedFiles.length }} File(s)
+      </button>
+    </div>
+  </mat-card>
+
+  <!-- Upload Progress -->
+  <mat-card *ngIf="uploading" class="progress-card">
+    <h3>Uploading Files...</h3>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <p>Please wait while files are being uploaded</p>
+  </mat-card>
+
+  <!-- Upload Results -->
+  <mat-card *ngIf="uploadResults.length > 0 && !uploading" class="results-card">
+    <div class="results-header">
+      <h3>Upload Results</h3>
+      <div class="summary">
+        <mat-chip-set>
+          <mat-chip color="primary" selected *ngIf="getSuccessCount() > 0">
+            ✓ {{ getSuccessCount() }} Successful
+          </mat-chip>
+          <mat-chip color="warn" selected *ngIf="getFailureCount() > 0">
+            ✗ {{ getFailureCount() }} Failed
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+    </div>
+
+    <mat-list>
+      <mat-list-item *ngFor="let result of uploadResults">
+        <mat-icon matListIcon [color]="result.success ? 'primary' : 'warn'">
+          {{ result.success ? 'check_circle' : 'error' }}
+        </mat-icon>
+        <div matLine>{{ result.fileName }}</div>
+        <div matLine [class.error-text]="!result.success">{{ result.message }}</div>
+        <div matLine *ngIf="result.success" class="ids-text">
+          Patient ID: {{ result.patientId }} | Study ID: {{ result.studyId }}
+        </div>
+      </mat-list-item>
+    </mat-list>
+
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="viewPatients()">
+        <mat-icon>people</mat-icon>
+        View Patients
+      </button>
+      <button mat-button (click)="clearAll()">
+        Upload More Files
+      </button>
+    </div>
+  </mat-card>
+</div>

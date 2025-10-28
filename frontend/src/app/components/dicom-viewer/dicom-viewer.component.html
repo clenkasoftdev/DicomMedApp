@@ -1,0 +1,23 @@
+<div class="viewer-container">
+  <div class="viewer-header">
+    <h3>DICOM Image Viewer</h3>
+    <button mat-icon-button (click)="resetView()" matTooltip="Reset View">
+      <mat-icon>refresh</mat-icon>
+    </button>
+    <button mat-icon-button (click)="fitToWindow()" matTooltip="Fit to Window">
+        <mat-icon>fit_screen</mat-icon>
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-spinner></mat-spinner>
+    <p>Loading DICOM image...</p>
+  </div>
+
+  <div *ngIf="error" class="error">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+  </div>
+
+  <div #dicomImage class="dicom-image" [class.hidden]="loading || error"></div>
+</div>
