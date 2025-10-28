@@ -11,7 +11,7 @@ namespace Clenkasoft.DicomMedAppApi.Endpoints
         }
 
         private static async Task<IResult> GetSeriesInstances(
-            int seriesId,
+           int seriesId,
            IDicomService dicomService,
            ILogger<DicomService> logger)
         {

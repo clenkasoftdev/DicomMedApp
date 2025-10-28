@@ -9,11 +9,9 @@ namespace Clenkasoft.DicomMedAppApi.Endpoints
     {
         public static void Map(this WebApplication app)
         {
-            app.MapPost("/api/dicom/upload", UploadDicomFile)
-         .WithName("UploadDicomFile");
+            app.MapPost("/api/dicom/upload", UploadDicomFile).WithName("UploadDicomFile");
 
-            app.MapPost("/api/dicom/upload/batch", UploadMultipleDicomFiles)
-                .WithName("UploadMultipleDicomFiles");
+            app.MapPost("/api/dicom/upload/batch", UploadMultipleDicomFiles).WithName("UploadMultipleDicomFiles");
 
             app.MapGet("/api/dicom/download/{instanceId:int}", DownloadDicomFile).WithName("DownloadDicomFile");
 
@@ -21,9 +19,9 @@ namespace Clenkasoft.DicomMedAppApi.Endpoints
         }
 
         private static async Task<IResult> UploadDicomFile(
-    HttpRequest request,
-    IDicomFileService dicomFileService,
-    ILogger<LocalDicomFileService> logger)
+            HttpRequest request,
+            IDicomFileService dicomFileService,
+            ILogger<LocalDicomFileService> logger)
         {
             if (!request.HasFormContentType)
                 return Results.BadRequest(new { message = "Expected multipart/form-data" });
@@ -61,9 +59,9 @@ namespace Clenkasoft.DicomMedAppApi.Endpoints
         }
 
         private static async Task<IResult> UploadMultipleDicomFiles(
-     HttpRequest request,
-     IDicomFileService dicomFileService,
-     ILogger<LocalDicomFileService> logger)
+             HttpRequest request,
+             IDicomFileService dicomFileService,
+             ILogger<LocalDicomFileService> logger)
         {
             if (!request.HasFormContentType)
                 return Results.BadRequest(new { message = "Expected multipart/form-data" });
@@ -129,7 +127,5 @@ namespace Clenkasoft.DicomMedAppApi.Endpoints
                 return Results.Problem(detail: ex.Message, statusCode: 500);
             }
         }
-
-
     }
 }
