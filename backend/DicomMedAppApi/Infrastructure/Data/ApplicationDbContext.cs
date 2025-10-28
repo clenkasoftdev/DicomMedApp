@@ -23,6 +23,7 @@ namespace Clenkasoft.DicomMedAppApi.Infrastructure.Data
             // Patient Configuration
             modelBuilder.Entity<Patient>(entity =>
             {
+                entity.ToTable("patients");
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.PatientId);
                 entity.Property(e => e.PatientId).HasMaxLength(64).IsRequired();
@@ -33,6 +34,7 @@ namespace Clenkasoft.DicomMedAppApi.Infrastructure.Data
             // Study Configuration
             modelBuilder.Entity<Study>(entity =>
             {
+                entity.ToTable("studies");
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.StudyInstanceUid).IsUnique();
                 entity.Property(e => e.StudyInstanceUid).HasMaxLength(128).IsRequired();
@@ -49,6 +51,7 @@ namespace Clenkasoft.DicomMedAppApi.Infrastructure.Data
             // Series Configuration
             modelBuilder.Entity<Series>(entity =>
             {
+                entity.ToTable("series");
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.SeriesInstanceUid).IsUnique();
                 entity.Property(e => e.SeriesInstanceUid).HasMaxLength(128).IsRequired();
@@ -66,6 +69,7 @@ namespace Clenkasoft.DicomMedAppApi.Infrastructure.Data
             // Instance Configuration
             modelBuilder.Entity<Instance>(entity =>
             {
+                entity.ToTable("instances");
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.SopInstanceUid).IsUnique();
                 entity.Property(e => e.SopInstanceUid).HasMaxLength(128).IsRequired();

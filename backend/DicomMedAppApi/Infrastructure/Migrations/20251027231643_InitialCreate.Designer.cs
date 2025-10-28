@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DicomMedAppApi.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251027095125_InitialCreate")]
+    [Migration("20251027231643_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -81,7 +81,7 @@ namespace DicomMedAppApi.Infrastructure.Migrations
                     b.HasIndex("SopInstanceUid")
                         .IsUnique();
 
-                    b.ToTable("Instances");
+                    b.ToTable("instances", (string)null);
                 });
 
             modelBuilder.Entity("Clenkasoft.DicomMedAppApi.Models.Patient", b =>
@@ -119,7 +119,7 @@ namespace DicomMedAppApi.Infrastructure.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Patients");
+                    b.ToTable("patients", (string)null);
                 });
 
             modelBuilder.Entity("Clenkasoft.DicomMedAppApi.Models.Series", b =>
@@ -170,7 +170,7 @@ namespace DicomMedAppApi.Infrastructure.Migrations
 
                     b.HasIndex("StudyId");
 
-                    b.ToTable("Series");
+                    b.ToTable("series", (string)null);
                 });
 
             modelBuilder.Entity("Clenkasoft.DicomMedAppApi.Models.Study", b =>
@@ -220,7 +220,7 @@ namespace DicomMedAppApi.Infrastructure.Migrations
                     b.HasIndex("StudyInstanceUid")
                         .IsUnique();
 
-                    b.ToTable("Studies");
+                    b.ToTable("studies", (string)null);
                 });
 
             modelBuilder.Entity("Clenkasoft.DicomMedAppApi.Models.Instance", b =>

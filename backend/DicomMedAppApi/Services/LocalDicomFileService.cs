@@ -1,7 +1,7 @@
 ﻿using Clenkasoft.DicomMedAppApi.Contracts;
 using Clenkasoft.DicomMedAppApi.DTOs;
 using Clenkasoft.DicomMedAppApi.Models;
-using FellowOakDicom;
+using Clenkasoft.DicomMedAppApi.Parsers;
 
 
 namespace Clenkasoft.DicomMedAppApi.Services
@@ -39,92 +39,63 @@ namespace Clenkasoft.DicomMedAppApi.Services
         {
             try
             {
-                // 1. Parse DICOM file using fo-dicom
-                var dicomFile = await DicomFile.OpenAsync(fileStream);
-                var dataset = dicomFile.Dataset;
+                // 1. Get DICOM Parser
+                DicomFileParser dicomFileParser = new DicomFileParser();
 
-                // 2. Extract DICOM metadata
-                var patientId = SanitizeString(dataset.GetSingleValueOrDefault(DicomTag.PatientID, "UNKNOWN"));
-                var patientName = SanitizeString(dataset.GetSingleValueOrDefault(DicomTag.PatientName, "UNKNOWN"));
-                var patientBirthDate = dataset.GetSingleValueOrDefault<DateTime?>(DicomTag.PatientBirthDate, null);
-                var patientSex = SanitizeString(dataset.GetSingleValueOrDefault<string?>(DicomTag.PatientSex, null));
-
-                var studyInstanceUid = SanitizeString(dataset.GetSingleValueOrDefault(DicomTag.StudyInstanceUID, string.Empty));
-                var studyDate = dataset.GetSingleValueOrDefault<DateTime?>(DicomTag.StudyDate, null);
-                var studyTime = dataset.GetSingleValueOrDefault<TimeSpan?>(DicomTag.StudyTime, null);
-                var studyDescription = SanitizeString(dataset.GetSingleValueOrDefault<string?>(DicomTag.StudyDescription, null));
-                var accessionNumber = SanitizeString(dataset.GetSingleValueOrDefault<string?>(DicomTag.AccessionNumber, null));
-                var referringPhysician = SanitizeString(dataset.GetSingleValueOrDefault<string?>(DicomTag.ReferringPhysicianName, null));
-
-                var seriesInstanceUid = SanitizeString(dataset.GetSingleValueOrDefault(DicomTag.SeriesInstanceUID, string.Empty));
-                var modality = SanitizeString(dataset.GetSingleValueOrDefault<string?>(DicomTag.Modality, null));
-                var seriesNumber = dataset.GetSingleValueOrDefault<int?>(DicomTag.SeriesNumber, null);
-                var seriesDescription = SanitizeString(dataset.GetSingleValueOrDefault<string?>(DicomTag.SeriesDescription, null));
-                var bodyPartExamined = SanitizeString(dataset.GetSingleValueOrDefault<string?>(DicomTag.BodyPartExamined, null));
-                var protocolName = SanitizeString(dataset.GetSingleValueOrDefault<string?>(DicomTag.ProtocolName, null));
-
-                var sopInstanceUid = SanitizeString(dataset.GetSingleValueOrDefault(DicomTag.SOPInstanceUID, string.Empty));
-                var sopClassUid = dataset.GetSingleValueOrDefault<string?>(DicomTag.SOPClassUID, null);
-                var instanceNumber = dataset.GetSingleValueOrDefault<int?>(DicomTag.InstanceNumber, null);
-                var transferSyntaxUid = dicomFile.FileMetaInfo.TransferSyntax?.UID.UID;
-
-                // Image specific tags
-                var rows = dataset.GetSingleValueOrDefault<int?>(DicomTag.Rows, null);
-                var columns = dataset.GetSingleValueOrDefault<int?>(DicomTag.Columns, null);
-                var bitsAllocated = dataset.GetSingleValueOrDefault<int?>(DicomTag.BitsAllocated, null);
+                // 2. Parse Dicom file and Extract metadata
+                var dicomMetadata = await dicomFileParser.ParseAsync(fileStream);
 
                 // 3. Find or create Patient
-                var patient = await _dicomService.GetPatientByPatientIdAsync(patientId);
-                if(patient == null)
+                var patient = await _dicomService.GetPatientByPatientIdAsync(dicomMetadata.PatientId);
+                if (patient == null)
                 {
                     patient = new Patient
                     {
-                        PatientId = patientId,
-                        PatientName = patientName,
-                        BirthDate = patientBirthDate,
-                        Gender = patientSex
+                        PatientId = dicomMetadata.PatientId,
+                        PatientName = dicomMetadata.PatientName,
+                        BirthDate = dicomMetadata.PatientBirthDate,
+                        Gender = dicomMetadata.PatientSex
                     };
 
                     await _dicomService.AddPatientAsync(patient);
                 }
 
                 // 4. Find or create Study
-                var study = await _dicomService.GetStudyByInstanceUidAsync(studyInstanceUid);
+                var study = await _dicomService.GetStudyByInstanceUidAsync(dicomMetadata.StudyInstanceUid);
                 if (study == null)
                 {
                     study = new Study
                     {
-                        StudyInstanceUid = studyInstanceUid,
-                        StudyDate = studyDate,
-                        StudyTime = studyTime,
-                        StudyDescription = studyDescription,
-                        AccessionNumber = accessionNumber,
-                        ReferringPhysicianName = referringPhysician,
+                        StudyInstanceUid = dicomMetadata.StudyInstanceUid,
+                        StudyDate = dicomMetadata.StudyDate,
+                        StudyTime = dicomMetadata.StudyTime,
+                        StudyDescription = dicomMetadata.StudyDescription,
+                        AccessionNumber = dicomMetadata.AccessionNumber,
+                        ReferringPhysicianName = dicomMetadata.ReferringPhysician,
                         PatientId = patient.Id
                     };
                     await _dicomService.AddStudyAsync(study);
                 }
 
                 // 5. Find or create Series
-                var series = await _dicomService.GetSeriesByInstanceUIdAsync(seriesInstanceUid);
+                var series = await _dicomService.GetSeriesByInstanceUIdAsync(dicomMetadata.SeriesInstanceUid);
                 if (series == null)
                 {
                     series = new Series
                     {
-                        SeriesInstanceUid = seriesInstanceUid,
-                        Modality = modality,
-                        SeriesNumber = seriesNumber,
-                        SeriesDescription = seriesDescription,
-                        BodyPartExamined = bodyPartExamined,
-                        ProtocolName = protocolName,
+                        SeriesInstanceUid = dicomMetadata.SeriesInstanceUid,
+                        Modality = dicomMetadata.Modality,
+                        SeriesNumber = dicomMetadata.SeriesNumber,
+                        SeriesDescription = dicomMetadata.SeriesDescription,
+                        BodyPartExamined = dicomMetadata.BodyPartExamined,
+                        ProtocolName = dicomMetadata.ProtocolName,
                         StudyId = study.Id
-
                     };
                     await _dicomService.AddSeriesAsync(series);
                 }
 
                 // 6. Check if Instance already exists
-                var existingInstance = await _dicomService.GetInstanceBySobUIdAsync(sopInstanceUid);
+                var existingInstance = await _dicomService.GetInstanceBySobUIdAsync(dicomMetadata.SopInstanceUid);
                 if (existingInstance != null)
                 {
                     return new DicomUploadResponseDto(
@@ -137,13 +108,15 @@ namespace Clenkasoft.DicomMedAppApi.Services
                     );
                 }
 
-                // 7. Save DICOM file to local storage
+                // 7. Upload DICOM file to Azure Blob Storage
+                // Compose a logical blob name (folder-like)
                 var relativeFilePath = Path.Combine(
-                    patientId,
-                    studyInstanceUid,
-                    seriesInstanceUid,
-                    $"{sopInstanceUid}.dcm"
-                );
+                   DicomFileParser.SanitizePathSegment(dicomMetadata.PatientId),
+                    DicomFileParser.SanitizePathSegment(dicomMetadata.StudyInstanceUid),
+                    DicomFileParser.SanitizePathSegment(dicomMetadata.SeriesInstanceUid),
+                    $"{DicomFileParser.SanitizePathSegment(dicomMetadata.SopInstanceUid)}.dcm"
+                ).Replace("\\", "/"); // blobs use forward slashes
+
 
                 var fullFilePath = Path.Combine(_storageBasePath, relativeFilePath);
 
@@ -166,15 +139,15 @@ namespace Clenkasoft.DicomMedAppApi.Services
                 // Create a new instance record
                 var instance = new Instance
                 {
-                    SopInstanceUid = sopInstanceUid,
-                    SopClassUid = sopClassUid,
-                    InstanceNumber = instanceNumber,
+                    SopInstanceUid = dicomMetadata.SopInstanceUid,
+                    SopClassUid = dicomMetadata.SopClassUid,
+                    InstanceNumber = dicomMetadata.InstanceNumber,
                     FilePath = relativeFilePath,
                     FileSize = fileInfo.Length,
-                    TransferSyntaxUid = transferSyntaxUid,
-                    Rows = rows,
-                    Columns = columns,
-                    BitsAllocated = bitsAllocated,
+                    TransferSyntaxUid = dicomMetadata.TransferSyntaxUid,
+                    Rows = dicomMetadata.Rows,
+                    Columns = dicomMetadata.Columns,
+                    BitsAllocated = dicomMetadata.BitsAllocated,
                     SeriesId = series.Id
                 };
 
@@ -205,19 +178,5 @@ namespace Clenkasoft.DicomMedAppApi.Services
             }
         }
 
-        /// <summary>
-        ///  DICOM files can have null bytes (\0) in their text fields, but 
-        ///  PostgreSQL doesn't allow null bytes in text/varchar columns.
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        private string SanitizeString(string? input)
-        {
-            if (string.IsNullOrEmpty(input))
-                return string.Empty;
-
-            // Remove null bytes and other problematic characters
-            return input.Replace("\0", "").Trim();
-        }
     }
 }
