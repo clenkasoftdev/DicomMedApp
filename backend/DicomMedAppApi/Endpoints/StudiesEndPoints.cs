@@ -11,7 +11,7 @@ namespace Clenkasoft.DicomMedAppApi.Endpoints
         }
 
         private static async Task<IResult> GetStudies(
-            int studyId,
+           int studyId,
            IDicomService dicomService,
            ILogger<DicomService> logger)
         {
