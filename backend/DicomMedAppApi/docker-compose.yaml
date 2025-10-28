@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dicom_medical_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    command: "azurite-blob --blobHost 0.0.0.0 --loose"
+    volumes:
+      - ./azurite:/data
+    ports:
+      - "10000:10000"
+
+  api:
+    image: clemic/dicom-med-app:latest
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=dicom_medical_db;Username=postgres;Password=postgres
+      - AzureStorage__ConnectionString=UseDevelopmentStorage=true
+      - AzureStorage__ContainerName=dicomfiles
+      - UseCloudStorage=false
+    ports:
+      - "7208:80"
+
+volumes:
+  db_data:

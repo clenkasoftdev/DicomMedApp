@@ -118,16 +118,16 @@ namespace Clenkasoft.DicomMedAppApi.Repositories
 
         public async Task<Study> GetStudyByInstanceUidAsync(string studyInstanceUid)
         {
-            return await _context.Studies.FirstAsync(s => s.StudyInstanceUid == studyInstanceUid);
+            return await _context.Studies.FirstOrDefaultAsync(s => s.StudyInstanceUid == studyInstanceUid);
         }
         public async Task<Instance> GetInstanceBySobUIdAsync(string instanceSubUid)
         {
-            return await _context.Instances.FirstAsync(i => i.SopInstanceUid == instanceSubUid);
+            return await _context.Instances.FirstOrDefaultAsync(i => i.SopInstanceUid == instanceSubUid);
         }
 
         public async Task<Series> GetSeriesByInstanceUIdAsync(string seriesInstanceUid)
         {
-            return await _context.Series.FirstAsync(i => i.SeriesInstanceUid == seriesInstanceUid);
+            return await _context.Series.FirstOrDefaultAsync(i => i.SeriesInstanceUid == seriesInstanceUid);
         }
 
         public async Task AddPatientAsync(Patient patient)

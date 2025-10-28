@@ -4,13 +4,18 @@ using Clenkasoft.DicomMedAppApi.Infrastructure.Data;
 using Clenkasoft.DicomMedAppApi.Repositories;
 using Clenkasoft.DicomMedAppApi.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "DICOM API", Version = "v1" });
+});
 
 // Configure PostgreSQL Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -45,8 +50,8 @@ builder.Services.AddCors(options =>
             // When AllowCredentials() is used, origins must be explicit (not AllowAnyOrigin)
             policy.WithOrigins(allowedOrigins)
                   .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
+                  .AllowAnyMethod();
+                  //.AllowCredentials(); Frontend does not send credentials for now
         }
         else
         {
@@ -94,7 +99,6 @@ if (app.Environment.IsDevelopment())
         Console.WriteLine($"Error applying migrations: {ex.Message}");
     }
 }
-
 
 
 WeatherEndPoints.Map(app);

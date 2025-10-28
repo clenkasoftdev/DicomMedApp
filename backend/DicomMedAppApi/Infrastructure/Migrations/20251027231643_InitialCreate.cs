@@ -11,7 +11,7 @@ namespace DicomMedAppApi.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Patients",
+                name: "patients",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -25,11 +25,11 @@ namespace DicomMedAppApi.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Patients", x => x.Id);
+                    table.PrimaryKey("PK_patients", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Studies",
+                name: "studies",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -46,17 +46,17 @@ namespace DicomMedAppApi.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Studies", x => x.Id);
+                    table.PrimaryKey("PK_studies", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Studies_Patients_PatientId",
+                        name: "FK_studies_patients_PatientId",
                         column: x => x.PatientId,
-                        principalTable: "Patients",
+                        principalTable: "patients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Series",
+                name: "series",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -73,17 +73,17 @@ namespace DicomMedAppApi.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Series", x => x.Id);
+                    table.PrimaryKey("PK_series", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Series_Studies_StudyId",
+                        name: "FK_series_studies_StudyId",
                         column: x => x.StudyId,
-                        principalTable: "Studies",
+                        principalTable: "studies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Instances",
+                name: "instances",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -103,50 +103,50 @@ namespace DicomMedAppApi.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Instances", x => x.Id);
+                    table.PrimaryKey("PK_instances", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Instances_Series_SeriesId",
+                        name: "FK_instances_series_SeriesId",
                         column: x => x.SeriesId,
-                        principalTable: "Series",
+                        principalTable: "series",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Instances_SeriesId",
-                table: "Instances",
+                name: "IX_instances_SeriesId",
+                table: "instances",
                 column: "SeriesId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Instances_SopInstanceUid",
-                table: "Instances",
+                name: "IX_instances_SopInstanceUid",
+                table: "instances",
                 column: "SopInstanceUid",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Patients_PatientId",
-                table: "Patients",
+                name: "IX_patients_PatientId",
+                table: "patients",
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Series_SeriesInstanceUid",
-                table: "Series",
+                name: "IX_series_SeriesInstanceUid",
+                table: "series",
                 column: "SeriesInstanceUid",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Series_StudyId",
-                table: "Series",
+                name: "IX_series_StudyId",
+                table: "series",
                 column: "StudyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Studies_PatientId",
-                table: "Studies",
+                name: "IX_studies_PatientId",
+                table: "studies",
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Studies_StudyInstanceUid",
-                table: "Studies",
+                name: "IX_studies_StudyInstanceUid",
+                table: "studies",
                 column: "StudyInstanceUid",
                 unique: true);
         }
@@ -154,16 +154,16 @@ namespace DicomMedAppApi.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Instances");
+                name: "instances");
 
             migrationBuilder.DropTable(
-                name: "Series");
+                name: "series");
 
             migrationBuilder.DropTable(
-                name: "Studies");
+                name: "studies");
 
             migrationBuilder.DropTable(
-                name: "Patients");
+                name: "patients");
         }
     }
 }
