@@ -1,0 +1,43 @@
+<div class="home-container">
+  <div class="hero">
+    <mat-icon class="hero-icon">local_hospital</mat-icon>
+    <h1>DICOM Medical App</h1>
+    <p class="subtitle">Professional DICOM file management system</p>
+    
+    <div class="cta-buttons">
+      <button mat-raised-button color="primary" routerLink="/upload">
+        <mat-icon>cloud_upload</mat-icon>
+        Upload DICOM Files
+      </button>
+      <button mat-raised-button routerLink="/patients">
+        <mat-icon>people</mat-icon>
+        View Patients
+      </button>
+    </div>
+  </div>
+
+  <div class="features">
+    <h2>Features</h2>
+    <div class="features-grid">
+      <mat-card *ngFor="let feature of features" class="feature-card">
+        <mat-icon color="primary">{{ feature.icon }}</mat-icon>
+        <h3>{{ feature.title }}</h3>
+        <p>{{ feature.description }}</p>
+      </mat-card>
+    </div>
+  </div>
+
+  <mat-card class="info-card">
+    <h3>Technology Stack</h3>
+    <div class="tech-stack">
+      <mat-chip-set>
+        <mat-chip>Angular 15</mat-chip>
+        <mat-chip>.NET 8</mat-chip>
+        <mat-chip>PostgreSQL</mat-chip>
+        <mat-chip>fo-dicom</mat-chip>
+        <mat-chip>Entity Framework Core</mat-chip>
+        <mat-chip>Angular Material</mat-chip>
+      </mat-chip-set>
+    </div>
+  </mat-card>
+</div>

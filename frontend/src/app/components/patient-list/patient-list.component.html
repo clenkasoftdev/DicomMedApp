@@ -1,0 +1,81 @@
+<div class="patient-list-container">
+  <div class="header">
+    <h1>Patients</h1>
+    <button mat-raised-button color="primary" routerLink="/upload">
+      <mat-icon>cloud_upload</mat-icon>
+      Upload DICOM Files
+    </button>
+  </div>
+
+  <mat-card *ngIf="error" class="error-card">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-button (click)="loadPatients()">Retry</button>
+  </mat-card>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Loading patients...</p>
+  </div>
+
+  <mat-card *ngIf="!loading && !error && patients.length === 0" class="empty-state">
+    <mat-icon>folder_open</mat-icon>
+    <h2>No patients found</h2>
+    <p>Upload DICOM files to get started</p>
+    <button mat-raised-button color="primary" routerLink="/upload">
+      Upload DICOM Files
+    </button>
+  </mat-card>
+
+  <div *ngIf="!loading && !error && patients.length > 0" class="table-container">
+    <table mat-table [dataSource]="patients" class="patients-table">
+      
+      <!-- Patient ID Column -->
+      <ng-container matColumnDef="patientId">
+        <th mat-header-cell *matHeaderCellDef>Patient ID</th>
+        <td mat-cell *matCellDef="let patient">{{ patient.patientId }}</td>
+      </ng-container>
+
+      <!-- Patient Name Column -->
+      <ng-container matColumnDef="patientName">
+        <th mat-header-cell *matHeaderCellDef>Patient Name</th>
+        <td mat-cell *matCellDef="let patient">{{ patient.patientName }}</td>
+      </ng-container>
+
+      <!-- Birth Date Column -->
+      <ng-container matColumnDef="birthDate">
+        <th mat-header-cell *matHeaderCellDef>Birth Date</th>
+        <td mat-cell *matCellDef="let patient">{{ formatDate(patient.birthDate) }}</td>
+      </ng-container>
+
+      <!-- Gender Column -->
+      <ng-container matColumnDef="gender">
+        <th mat-header-cell *matHeaderCellDef>Gender</th>
+        <td mat-cell *matCellDef="let patient">{{ patient.gender || 'N/A' }}</td>
+      </ng-container>
+
+      <!-- Study Count Column -->
+      <ng-container matColumnDef="studyCount">
+        <th mat-header-cell *matHeaderCellDef>Studies</th>
+        <td mat-cell *matCellDef="let patient">
+          <mat-chip-set>
+            <mat-chip color="primary" selected>{{ patient.studyCount }}</mat-chip>
+          </mat-chip-set>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let patient">
+          <button mat-icon-button color="primary" (click)="viewPatientDetails(patient.id)" matTooltip="View Details">
+            <mat-icon>visibility</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="patient-row"></tr>
+    </table>
+  </div>
+</div>
